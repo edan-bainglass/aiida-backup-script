@@ -6,9 +6,9 @@ The following Python environments are supported:
 
 | Environment     | Command                                                     |
 |-----------------|-------------------------------------------------------------|
-| `conda`         | `aiida-backup.sh -e conda -c <conda-env> -n <project-name>` |
-| `venv`          | `aiida-backup.sh -e venv -v <venv-path> -n <project-name>`  |
-| `aiida-project` | `aiida-backup.sh -e aiida-project -n <project-name>`        |
+| `conda`         | `./aiida-backup.sh -e conda -c <conda-env> -n <project-name>` |
+| `venv`          | `./aiida-backup.sh -e venv -v <venv-path> -n <project-name>`  |
+| `aiida-project` | `./aiida-backup.sh -e aiida-project -n <project-name>`        |
 
 The script will backup all existing (autodetected) AiiDA profiles in the provided environment to `ROOT/<project-name>/<profile-name>`, where `ROOT` is to be predefined by the user within the script.
 
