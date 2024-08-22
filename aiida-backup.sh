@@ -4,14 +4,19 @@
 
 show_help() {
     echo
-    echo "Usage: ./aiida-backup.sh [-h] [-e env-type] [-c conda-env] [-v venv-path] [-p projects-path] [-n project-name]"
+    echo "Usage: ./aiida-backup.sh [-h] [-e env-type] [-c conda-env] [-v venv-path] [-n project] [-p profiles]"
+    echo
+    echo "Examples:"
+    echo "  conda:            ./aiida-backup.sh -e conda -c <conda-env> -n <project>"
+    echo "  venv:             ./aiida-backup.sh -e venv -v aiida2.5 -n <project>"
+    echo "  aiida-project:    ./aiida-backup.sh -e aiida-project -n <project>"
     echo
     echo "Options:"
     echo "  -h                Show this help message"
     echo "  -e env-type       The type of environment to activate (conda, venv, aiida-project)"
     echo "  -c conda-env      The name of the Conda environment to activate"
     echo "  -v venv-path      The path to the virtual environment to activate"
-    echo "  -n project        The name of the AiiDA project"
+    echo "  -n project        The name of the AiiDA project. This is not related to aiida-project but a personal choice for your project."
     echo "  -p profiles       The names of AiiDA profiles to backup (optional) - if not specified, all profiles will be backed up"
     echo
 }
@@ -54,7 +59,7 @@ venv)
     ;;
 aiida-project)
     if [ ! -f "$HOME/.aiida_project.env" ]; then
-        echo ".aiida_project.env not found in user directory. Is aiida-project initialized?" && exit 1
+        echo ".aiida_project.env not found in user home directory. Is aiida-project initialized?" && exit 1
     fi
     export "$(grep -v '^#' "$HOME/.aiida_project.env" | xargs)"
     source $aiida_venv_dir/$project/bin/activate
