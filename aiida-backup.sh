@@ -84,27 +84,28 @@ ROOT="/home/edanb/PSI/group/aiida-backup-setup/backups/aiida"
 backup() {
     local project=$1
     local profiles=$2
+    local log_file="$ROOT/$project/backup.log"
 
+    # Overwrite log file, if exists
+    mkdir -p "$ROOT/$project"
+    echo -e "\nBacking up \"$project\" project" 2>&1 | tee $log_file
+
+    # Get a list of profiles (find all profile names if not specified)
     if [ ! "$profiles" ]; then
         profiles=$(verdi profile list)
         if grep -q Warning <<<"$profiles"; then
-            echo "No profiles found!" && exit 1
+            echo "No profiles found!" | tee -a $log_file && exit 1
         else
-            profiles=$(echo "$profiles" | xargs | cut -d '*' -f2)
+            profiles=$(echo "$profiles" | sed 's/.*\.aiida//;s/\*.*//' |  xargs)
         fi
     fi
 
-    echo
-    echo "Backing up \"$project\" project"
-    echo
-
+    # Backup each profile
     for profile in $profiles; do
         path="$ROOT/$project/$profile"
         mkdir -p "$path"
-        echo "Backing up \"$profile\" profile to $path"
-        echo
-        verdi -p "$profile" storage backup "$path"
-        echo
+        echo -e "\nBacking up \"$profile\" profile to $path \n" 2>&1 | tee -a $log_file
+        (verdi -p "$profile" storage backup "$path") 2>&1 | tee -a $log_file
     done
 }
 
