@@ -16,8 +16,14 @@ show_help() {
     echo "  -e env-type       The type of environment to activate (conda, venv, aiida-project)"
     echo "  -c conda-env      The name of the Conda environment to activate"
     echo "  -v venv-path      The path to the virtual environment to activate"
-    echo "  -n project        The name of the AiiDA project. This is not related to aiida-project but a personal choice for your project."
+    echo "  -n project        The name of the AiiDA project (required)"
     echo "  -p profiles       The names of AiiDA profiles to backup (optional) - if not specified, all profiles will be backed up"
+    echo
+    echo "NOTE: "
+    echo "  The project argument is required for backups, which assume a ROOT -> PROJECT -> PROFILE structure in the backup folder."
+    echo "  If you do not already have a project name, we recommend using 'default', in which case, you would use (for example):"
+    echo
+    echo "    ./aiida-backup.sh -e conda -c <conda-env> -n default"
     echo
 }
 
