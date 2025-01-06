@@ -53,7 +53,7 @@ conda)
     if [ ! "$conda_env" ]; then
         echo "Conda environment not specified. Use -c <name>" && exit 1
     fi
-    source $(conda info --base)/etc/profile.d/conda.sh
+    source "$(conda info --base)/etc/profile.d/conda.sh"
     conda activate "$conda_env"
     ;;
 venv)
@@ -68,7 +68,7 @@ aiida-project)
         echo ".aiida_project.env not found in user home directory. Is aiida-project initialized?" && exit 1
     fi
     export "$(grep -v '^#' "$HOME/.aiida_project.env" | xargs)"
-    source $aiida_venv_dir/$project/bin/activate
+    source "$aiida_venv_dir/$project/bin/activate"
     ;;
 *)
     echo "Python environment type not specified. Use -e <conda|venv|aiida-project>" && exit 1
@@ -88,15 +88,14 @@ backup() {
 
     # Overwrite log file, if exists
     mkdir -p "$ROOT/$project"
-    echo -e "\nBacking up \"$project\" project" 2>&1 | tee $log_file
+    echo -e "\nBacking up \"$project\" project" 2>&1 | tee "$log_file"
 
-    # Get a list of profiles (find all profile names if not specified)
+    # Find all profiles if none specified
     if [ ! "$profiles" ]; then
-        profiles=$(verdi profile list)
-        if grep -q Warning <<<"$profiles"; then
-            echo "No profiles found!" | tee -a $log_file && exit 1
+        if [ -d ~/.aiida/repository ]; then
+            profiles=$(ls ~/.aiida/repository)
         else
-            profiles=$(echo "$profiles" | sed 's/.*\.aiida//;s/\*.*//' |  xargs)
+            echo "No profiles found!" | tee -a "$log_file" && exit 1
         fi
     fi
 
@@ -104,8 +103,8 @@ backup() {
     for profile in $profiles; do
         path="$ROOT/$project/$profile"
         mkdir -p "$path"
-        echo -e "\nBacking up \"$profile\" profile to $path \n" 2>&1 | tee -a $log_file
-        (verdi -p "$profile" storage backup "$path") 2>&1 | tee -a $log_file
+        echo -e "\nBacking up \"$profile\" profile to $path \n" 2>&1 | tee -a "$log_file"
+        (verdi -p "$profile" storage backup "$path") 2>&1 | tee -a "$log_file"
     done
 }
 
