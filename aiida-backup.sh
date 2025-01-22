@@ -16,8 +16,9 @@ show_help() {
     echo "  -e env-type       The type of environment to activate (conda, venv, aiida-project)"
     echo "  -c conda-env      The name of the Conda environment to activate"
     echo "  -v venv-path      The path to the virtual environment to activate"
-    echo "  -n project        The name of the AiiDA project (required)"
+    echo "  -n project        The name of the AiiDA project (required) - used as a subdirectory under the target ROOT directory"
     echo "  -p profiles       The names of AiiDA profiles to backup (optional) - if not specified, all profiles will be backed up"
+    echo "  -k keep           The number of backups to keep (default: 3)"
     echo
     echo "NOTE: "
     echo "  The project argument is required for backups, which assume a ROOT -> PROJECT -> PROFILE structure in the backup folder."
@@ -32,7 +33,7 @@ if [ "$#" -eq 0 ] || [ "${1:0:1}" != "-" ]; then
     exit 0
 fi
 
-while getopts "he:c:v:a:n:p:" opt; do
+while getopts "he:c:v:a:n:p:k:" opt; do
     case "${opt}" in
     h) show_help && exit 0 ;;
     e) env=$OPTARG ;;
@@ -40,6 +41,7 @@ while getopts "he:c:v:a:n:p:" opt; do
     v) venv_path=$OPTARG ;;
     n) project=$OPTARG ;;
     p) profiles=$OPTARG ;;
+    k) keep=$OPTARG ;;
     *) echo "Invalid argument. Run with -h for help." && exit 1 ;;
     esac
 done
@@ -74,7 +76,7 @@ aiida-project)
     home="$aiida_project_dir/$project" # point to project home directory
     ;;
 *)
-    echo "Python environment type not specified. Use -e <conda|venv|aiida-project>" && exit 1
+    echo "Python environment type not specified. Use -e <conda\|venv\|aiida-project>" && exit 1
     ;;
 esac
 
@@ -82,7 +84,11 @@ repodir="$home/.aiida/repository" # used to find profiles to backup
 
 # ROOT DIRECTORY FOR ALL BACKUPS ########################################################
 
-ROOT="/home/edanb/PSI/group/aiida-backup-setup/backups/aiida"
+NFD_ACCOUNT=""
+ROOT="/nfs/wsbackup/${NFS_ACCOUNT}/aiida" # if on workstation
+
+# Uncomment if on Thanos
+# ROOT="/nfs/nfsbackup/aiida_thanos"
 
 # BACKUP UTILITY ########################################################################
 
@@ -109,7 +115,7 @@ backup() {
         path="$ROOT/$project/$profile"
         mkdir -p "$path"
         echo -e "\nBacking up \"$profile\" profile to $path \n" 2>&1 | tee -a "$log_file"
-        (verdi -p "$profile" storage backup "$path") 2>&1 | tee -a "$log_file"
+        verdi -p "$profile" storage backup --keep "${keep-3}" "$path" 2>&1 | tee -a "$log_file"
     done
 }
 
