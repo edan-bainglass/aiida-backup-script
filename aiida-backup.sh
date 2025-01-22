@@ -84,7 +84,7 @@ repodir="$home/.aiida/repository" # used to find profiles to backup
 
 # ROOT DIRECTORY FOR ALL BACKUPS ########################################################
 
-NFD_ACCOUNT=""
+NFS_ACCOUNT=""
 ROOT="/nfs/wsbackup/${NFS_ACCOUNT}/aiida" # if on workstation
 
 # Uncomment if on Thanos
