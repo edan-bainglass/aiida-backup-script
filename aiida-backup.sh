@@ -50,8 +50,6 @@ if [ ! "$project" ]; then
     echo "Project name not specified. Use -n <name>" && exit 1
 fi
 
-home=$HOME # default home directory
-
 case "${env}" in
 conda)
     if [ ! "$conda_env" ]; then
@@ -73,14 +71,11 @@ aiida-project)
     fi
     export "$(grep -v '^#' "$HOME/.aiida_project.env" | xargs)"
     source "$aiida_venv_dir/$project/bin/activate"
-    home="$aiida_project_dir/$project" # point to project home directory
     ;;
 *)
     echo "Python environment type not specified. Use -e <conda\|venv\|aiida-project>" && exit 1
     ;;
 esac
-
-repodir="$home/.aiida/repository" # used to find profiles to backup
 
 # ROOT DIRECTORY FOR ALL BACKUPS ########################################################
 
@@ -103,11 +98,8 @@ backup() {
 
     # Find all profiles if none specified
     if [ ! "$profiles" ]; then
-        if [ -d "$repodir" ]; then
-            profiles=$(ls "$repodir")
-        else
-            echo "No profiles found!" | tee -a "$log_file" && exit 1
-        fi
+        profiles=$(verdi profile list | awk 'NF && !/Report:/ {gsub(/^\*/, ""); print $1}')
+        [[ -z "$profiles" ]] && echo "No profiles found!" | tee -a "$log_file" && exit 1
     fi
 
     # Backup each profile
