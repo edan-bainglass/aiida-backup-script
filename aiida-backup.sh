@@ -4,7 +4,7 @@
 
 show_help() {
     echo
-    echo "Usage: ./aiida-backup.sh [-h] [-e env-type] [-c conda-env] [-v venv-path] [-n project] [-p profiles]"
+    echo "Usage: ./aiida-backup.sh [-h] [-e env-type] [-c conda-env -x conda-path] [-v venv-path] [-n project] [-p profiles]"
     echo
     echo "Examples:"
     echo "  conda:            ./aiida-backup.sh -e conda -c <conda-env> -n <project>"
@@ -15,6 +15,7 @@ show_help() {
     echo "  -h                Show this help message"
     echo "  -e env-type       The type of environment to activate (conda, venv, aiida-project)"
     echo "  -c conda-env      The name of the Conda environment to activate"
+    echo "  -x conda-path     The path to the Conda shell executable (conda.sh)"
     echo "  -v venv-path      The path to the virtual environment to activate"
     echo "  -n project        The name of the AiiDA project (required) - used as a subdirectory under the target ROOT directory"
     echo "  -p profiles       The names of AiiDA profiles to backup (optional) - if not specified, all profiles will be backed up"
@@ -24,7 +25,7 @@ show_help() {
     echo "  The project argument is required for backups, which assume a ROOT -> PROJECT -> PROFILE structure in the backup folder."
     echo "  If you do not already have a project name, we recommend using 'default', in which case, you would use (for example):"
     echo
-    echo "    ./aiida-backup.sh -e conda -c <conda-env> -n default"
+    echo "    ./aiida-backup.sh -e conda -c <conda-env> -x <conda-path> -n default"
     echo
 }
 
@@ -33,11 +34,12 @@ if [ "$#" -eq 0 ] || [ "${1:0:1}" != "-" ]; then
     exit 0
 fi
 
-while getopts "he:c:v:a:n:p:k:" opt; do
+while getopts "he:c:x:v:a:n:p:k:" opt; do
     case "${opt}" in
     h) show_help && exit 0 ;;
     e) env=$OPTARG ;;
     c) conda_env=$OPTARG ;;
+    x) conda_path=$OPTARG ;;
     v) venv_path=$OPTARG ;;
     n) project=$OPTARG ;;
     p) profiles=$OPTARG ;;
@@ -55,7 +57,10 @@ conda)
     if [ ! "$conda_env" ]; then
         echo "Conda environment not specified. Use -c <name>" && exit 1
     fi
-    source "$(conda info --base)/etc/profile.d/conda.sh"
+    if [ ! "$conda_path" ]; then
+        echo "Conda.sh path not specified. Use -s <absolute-path-to-conda.sh>" && exit 1
+    fi
+    source "$conda_path"
     conda activate "$conda_env"
     ;;
 venv)
