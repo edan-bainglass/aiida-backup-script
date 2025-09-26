@@ -74,7 +74,7 @@ aiida-project)
     if [ ! -f "$HOME/.aiida_project.env" ]; then
         echo ".aiida_project.env not found in user home directory. Is aiida-project initialized?" && exit 1
     fi
-    export "$(grep -v '^#' "$HOME/.aiida_project.env" | xargs)"
+    export $(grep -v '^#' "$HOME/.aiida_project.env" | xargs)
     source "$aiida_venv_dir/$project/bin/activate"
     ;;
 *)
